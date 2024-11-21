@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoadDWHSales.Data.Services
 {
-    public class DataServiceDwhSales : IDataServiceDWHSales
+    public class DataServiceDWHSales : IDataServiceDWHSales
     {
         private readonly NorwindContext _norwindContext;
         private readonly DWHSalesContext _salesContext;
 
-        public DataServiceDwhSales(NorwindContext norwindContext,
+        public DataServiceDWHSales(NorwindContext norwindContext,
                                    DWHSalesContext salesContext)
         {
             _norwindContext = norwindContext;
@@ -24,12 +24,17 @@ namespace LoadDWHSales.Data.Services
         {
             OperactionResult result = new OperactionResult();
             try
-            {
-                // await LoadDimEmployee();
-                // await LoadDimProductCategory();
-                // await LoadDimCustomers();
-                // await LoadDimShippers();
-          
+            {// Limpiar las tablas antes de cargar los datos
+                await ClearTablesAsync();
+                
+                //Cargar las tablas
+
+                 await LoadDimEmployee();
+                 await LoadDimProductCategory();
+                 await LoadDimCustomers();
+                 await LoadDimShippers();
+                //await LoadFactSales();
+                //await LoadFactCustomerServed();
             }
             catch (Exception ex)
             {
@@ -39,6 +44,24 @@ namespace LoadDWHSales.Data.Services
             }
 
             return result;
+        }
+        private async Task ClearTablesAsync()
+        {
+            try
+            {
+                // Limpiar las tablas de dimensiones
+                _salesContext.DimEmployees.RemoveRange(_salesContext.DimEmployees);
+                _salesContext.DimProductCategories.RemoveRange(_salesContext.DimProductCategories);
+                _salesContext.DimCustomers.RemoveRange(_salesContext.DimCustomers);
+                _salesContext.DimShippers.RemoveRange(_salesContext.DimShippers);
+
+                // Guardar los cambios para aplicar la limpieza
+                await _salesContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al limpiar las tablas: {ex.Message}");
+            }
         }
 
         private async Task<OperactionResult> LoadDimEmployee()
@@ -60,7 +83,6 @@ namespace LoadDWHSales.Data.Services
 
                 // Carga la dimension de empleados.
 
-                _salesContext.DimEmployees.RemoveRange(employees);
                 await _salesContext.DimEmployees.AddRangeAsync(employees);
                 await _salesContext.SaveChangesAsync();
 
@@ -95,7 +117,6 @@ namespace LoadDWHSales.Data.Services
 
 
                 // Carga la dimension de Products Categories.
-                _salesContext.DimProductCategories.RemoveRange(productCategories);
                 await _salesContext.DimProductCategories.AddRangeAsync(productCategories);
                 await _salesContext.SaveChangesAsync();
 
@@ -129,10 +150,22 @@ namespace LoadDWHSales.Data.Services
                 }).AsNoTracking()
                   .ToListAsync();
 
+                var existeCustomerId = await _salesContext.DimCustomers
+            .Where(c => customers.Select(cust => cust.CustomerID).Contains(c.CustomerID))
+            .Select(c => c.CustomerID)
+            .ToListAsync();
+
+                var newCustomers = customers
+                    .Where(c => !existeCustomerId.Contains(c.CustomerID))
+                    .ToList();
+
+                if (newCustomers.Any())
+                {
+                    await _salesContext.DimCustomers.AddRangeAsync(newCustomers);
+                    await _salesContext.SaveChangesAsync();
+                }
                 // Carga dimension de cliente.
-                _salesContext.DimCustomers.RemoveRange(customers);
-                await _salesContext.DimCustomers.AddRangeAsync(customers);
-                await _salesContext.SaveChangesAsync();
+               
 
             }
             catch (Exception ex)
@@ -155,7 +188,6 @@ namespace LoadDWHSales.Data.Services
                     ShipperName = ship.CompanyName
                 }).ToListAsync();
 
-                _salesContext.DimShippers.RemoveRange(shippers);
                 await _salesContext.DimShippers.AddRangeAsync(shippers);
                 await _salesContext.SaveChangesAsync();
             }
@@ -168,5 +200,39 @@ namespace LoadDWHSales.Data.Services
             return result;
         }
 
+        private async Task<OperactionResult> LoadFactSales()
+        {
+            OperactionResult result = new OperactionResult();
+
+            try
+            {
+                var ventas = await _norwindContext.VwVwventas.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+
+                result.Success = false;
+                result.Message = $"Error cargando el fact de ventas {ex.Message} ";
+            }
+
+            return result;
+        }
+
+        private async Task<OperactionResult> LoadFactCustomerServed()
+        {
+            OperactionResult result = new OperactionResult() { Success = true };
+
+            try
+            {
+                var customerServed = await _norwindContext.VwServedCustomers.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+
+                result.Success = false;
+                result.Message = $"Error cargando el fact de clientes atendidos {ex.Message} ";
+            }
+            return result;
+        }
     }
 }

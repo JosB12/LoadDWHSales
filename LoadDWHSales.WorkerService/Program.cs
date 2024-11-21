@@ -20,10 +20,10 @@ namespace LoadDWHSales.WorkerService
                                                           options.UseSqlServer(hostContext.Configuration.GetConnectionString("DbNorwind")));
 
                 services.AddDbContextPool<DWHSalesContext>(options =>
-                                                          options.UseSqlServer(hostContext.Configuration.GetConnectionString("DbSales")));
+                                                          options.UseSqlServer(hostContext.Configuration.GetConnectionString("DWHSales")));
 
 
-                services.AddScoped<IDataServiceDWHSales, DataServiceDwhSales>();
+                services.AddScoped<IDataServiceDWHSales, DataServiceDWHSales>();
 
                 services.AddHostedService<Worker>();
             });
