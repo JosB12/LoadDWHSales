@@ -19,6 +19,17 @@ namespace LoadDWHSales.Data.Context
         public DbSet<DimProductCategory> DimProductCategories { get; set; }
         public DbSet<DimCustomer> DimCustomers { get; set; }
         public DbSet<DimShipper> DimShippers { get; set; }
+        public DbSet<DimDate> DimDates { get; set; }
+        public DbSet<FactOrders> FactOrders { get; set; }
+        public DbSet<FactServedCustomers> FactServedCustomers { get; set; }
         #endregion
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Ajusta la precisión y escala según sea necesario
+
+            modelBuilder.Entity<FactOrders>()
+            .Property(f => f.TotalSales)
+            .HasColumnType("decimal(18, 2)");
+        }
     }
 }

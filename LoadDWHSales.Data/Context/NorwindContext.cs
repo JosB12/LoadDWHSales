@@ -23,6 +23,7 @@ namespace LoadDWHSales.Data.Context
         public DbSet<VwServedCustomer> VwServedCustomers { get; set; }
 
         public DbSet<VwVwventa> VwVwventas { get; set; }
+        public DbSet<VwDate> VwDates { get; set; }
         #endregion
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,7 +45,7 @@ namespace LoadDWHSales.Data.Context
                     .HasNoKey()
                     .ToView("VW_VWVentas", "DWH");
 
-                entity.Property(e => e.City).HasMaxLength(15);
+                entity.Property(e => e.Country).HasMaxLength(15);
                 entity.Property(e => e.CompanyName)
                     .IsRequired()
                     .HasMaxLength(40);
@@ -65,6 +66,16 @@ namespace LoadDWHSales.Data.Context
                     .HasMaxLength(40);
                 entity.Property(e => e.ShipperId).HasColumnName("ShipperID");
             });
+            modelBuilder.Entity<Product>()
+               .Property(p => p.UnitPrice)
+               .HasColumnType("decimal(18, 2)");
+            modelBuilder.Entity<VwDate>(entity =>
+            {
+                entity
+                    .HasNoKey()
+                    .ToView("VwDates");
+            });
+
         }
 
     }

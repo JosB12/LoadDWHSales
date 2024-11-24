@@ -1,5 +1,7 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace LoadDWHSales.Data.Entities.Northwind
 {
     public class VwServedCustomer

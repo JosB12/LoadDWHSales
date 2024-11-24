@@ -5,11 +5,14 @@ using System.Collections.Generic;
 
 namespace LoadDWHSales.Models.Models;
 
-public partial class VwServedCustomer
+public partial class VwDate
 {
-    public int EmployeeId { get; set; }
+    public int? DateKey { get; set; }
 
-    public string EmployeeName { get; set; }
+    public DateOnly? FullDate { get; set; }
 
-    public int? TotalCustomersServed { get; set; }
+    public int? Year { get; set; }
+
+    public int? Month { get; set; }
+
 }

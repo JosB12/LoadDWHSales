@@ -15,11 +15,7 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[DWH].[VW_ServedCustomers]",
-         "ObjectType": 3
-      },
-      {
-         "Name": "[DWH].[VW_VWVentas]",
+         "Name": "[dbo].[VwDates]",
          "ObjectType": 3
       }
    ],

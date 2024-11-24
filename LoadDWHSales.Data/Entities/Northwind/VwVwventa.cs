@@ -1,10 +1,11 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace LoadDWHSales.Data.Entities.Northwind
 {
     public class VwVwventa
     {
-
         public string? CustomerId { get; set; }
 
         public string? CustomerName { get; set; }
@@ -16,7 +17,7 @@ namespace LoadDWHSales.Data.Entities.Northwind
         public int ShipperId { get; set; }
 
         public string? CompanyName { get; set; }
-        public string? City { get; set; }
+        public string? Country { get; set; }
 
         public int ProductId { get; set; }
 
